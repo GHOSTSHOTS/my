@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>استودیو سه بعدی و نستعلیق | فوق‌العاده گرافیکی</title>
+  <style>
+    /* ==================== FONTS ==================== */
+    @font-face {
+      font-family: 'WebNastaliq';
+      src: url('WebFonts/IranNastaliq-Web.woff2') format('woff2'),
+           url('WebFonts/IranNastaliq-Web.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    /* ==================== ROOT & RESET ==================== */
+    :root {
+      --primary: #8b5cf6;
+      --secondary: #06b6d4;
+      --accent: #ec4899;
+      --glow: #00f0ff;
+      --bg-dark: #05050a;
+      --panel-bg: rgba(12, 12, 24, 0.88);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --text-main: #ffffff;
+      --text-muted: #a0aec0;
+      --font-family: 'Segoe UI', 'Tahoma', system-ui, sans-serif;
+      --neon-shadow: 0 0 20px rgba(6, 182, 212, 0.5), 0 0 60px rgba(139, 92, 246, 0.3);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg-dark);
+      font-family: var(--font-family);
+      overflow: hidden;
+      color: var(--text-main);
+      transition: background 0.6s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ==================== BACKGROUND FX ==================== */
+    #bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(139, 92, 246, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(6, 182, 212, 0.07) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+      mask-image: radial-gradient(ellipse at 50% 50%, black 30%, transparent 80%);
+    }
+    #bg-glow {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 80%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+                  radial-gradient(ellipse at 80% 20%, rgba(6, 182, 212, 0.12) 0%, transparent 50%),
+                  radial-gradient(ellipse at 50% 50%, rgba(236, 72, 153, 0.06) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 1;
+    }
+    #particles {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .particle {
+      position: absolute;
+      width: 3px; height: 3px;
+      border-radius: 50%;
+      background: var(--glow);
+      box-shadow: 0 0 10px var(--glow);
+      animation: floatParticle linear infinite;
+    }
+    @keyframes floatParticle {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
+
+    /* ==================== SIDEBAR MENU ==================== */
+    .sidebar {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .menu-toggle {
+      background: var(--panel-bg);
+      backdrop-filter: blur(30px);
+      border: 1px solid var(--glass-border);
+      color: white;
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6), 0 0 20px rgba(6, 182, 212, 0.15);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .menu-toggle::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .menu-toggle:hover::before { opacity: 0.2; }
+    .menu-toggle:hover { transform: scale(1.08) rotate(5deg); border-color: var(--glow); box-shadow: 0 0 30px rgba(0, 240, 255, 0.3); }
+    .menu-toggle svg { width: 26px; height: 26px; fill: currentColor; position: relative; z-index: 1; }
+
+    .menu-items {
+      margin-top: 12px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(40px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.8), 0 0 40px rgba(139, 92, 246, 0.1);
+      opacity: 0;
+      transform: translateY(-15px) scale(0.9);
+      pointer-events: none;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform-origin: top right;
+      min-width: 190px;
+    }
+    .menu-items.open {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .menu-item {
+      padding: 14px 22px;
+      border-radius: 14px;
+      color: var(--text-muted);
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 0.95rem;
+      text-align: right;
+      white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+    }
+    .menu-item::before {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 0;
+      background: linear-gradient(to bottom, var(--primary), var(--secondary));
+      border-radius: 3px;
+      transition: height 0.3s;
+    }
+    .menu-item:hover { background: rgba(255,255,255,0.06); color: white; padding-right: 28px; }
+    .menu-item:hover::before { height: 60%; }
+    .menu-item.active { 
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(6, 182, 212, 0.15)); 
+      color: white; 
+      box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.08), 0 5px 20px rgba(99, 102, 241, 0.25);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+    }
+    .menu-item.active::before { height: 60%; }
+    .menu-item svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
+
+    /* ==================== SETTINGS TOGGLE ==================== */
+    .settings-toggle {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 2000;
+      background: var(--panel-bg);
+      border: 1px solid var(--glass-border);
+      color: white;
+      width: 54px; height: 54px;
+      border-radius: 18px;
+      cursor: pointer;
+      display: flex; justify-content: center; align-items: center;
+      backdrop-filter: blur(30px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6), 0 0 20px rgba(139, 92, 246, 0.15);
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .settings-toggle:hover { 
+      background: rgba(255,255,255,0.08); 
+      transform: rotate(180deg) scale(1.08); 
+      border-color: var(--accent);
+      box-shadow: 0 0 30px rgba(236, 72, 153, 0.3);
+    }
+    .settings-toggle svg { width: 24px; height: 24px; }
+
+    /* ==================== SETTINGS PANELS ==================== */
+    .settings-panel {
+      position: absolute;
+      top: 90px;
+      left: 20px;
+      width: 340px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(50px);
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      padding: 28px;
+      z-index: 1999;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.8), 0 0 60px rgba(139, 92, 246, 0.08);
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      max-height: 82vh;
+      overflow-y: auto;
+      display: none;
+      scrollbar-width: thin;
+      scrollbar-color: var(--secondary) transparent;
+    }
+    .settings-panel::-webkit-scrollbar { width: 4px; }
+    .settings-panel::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 4px; }
+    .settings-panel.active { display: block; animation: panelIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .settings-panel.hidden { display: none; }
+
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .panel-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px; padding-bottom: 18px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .panel-header h3 {
+      font-size: 1.15rem; font-weight: 800;
+      background: linear-gradient(135deg, #fff, var(--glow), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .close-btn {
+      background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #aaa; 
+      cursor: pointer; font-size: 1rem; transition: 0.3s;
+      width: 32px; height: 32px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .close-btn:hover { color: #fff; background: rgba(255,0,0,0.2); border-color: rgba(255,0,0,0.4); transform: rotate(90deg); }
+
+    .section-title {
+      font-size: 0.7rem; color: var(--secondary); text-transform: uppercase;
+      letter-spacing: 2px; margin-bottom: 14px; font-weight: 800;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-title::after {
+      content: ''; flex: 1; height: 1px; 
+      background: linear-gradient(to left, var(--glass-border), transparent);
+    }
+    .section-title svg { width: 16px; height: 16px; stroke: var(--secondary); }
+
+    .control-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .control-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; color: var(--text-muted); font-weight: 600; }
+    .control-header span.value { 
+      color: var(--glow); font-weight: 800; background: rgba(0, 240, 255, 0.1); 
+      padding: 3px 10px; border-radius: 8px; font-size: 0.8rem;
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      min-width: 40px; text-align: center;
+    }
+
+    input[type="range"] { 
+      -webkit-appearance: none; width: 100%; height: 6px; 
+      background: linear-gradient(to left, rgba(6, 182, 212, 0.3), rgba(139, 92, 246, 0.3));
+      border-radius: 3px; outline: none; cursor: pointer; 
+    }
+    input[type="range"]::-webkit-slider-thumb { 
+      -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; 
+      background: #fff; cursor: pointer; 
+      box-shadow: 0 0 20px var(--secondary), 0 0 40px rgba(6, 182, 212, 0.3); 
+      transition: transform 0.2s; border: 2px solid var(--secondary);
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.3); box-shadow: 0 0 30px var(--glow), 0 0 60px rgba(0, 240, 255, 0.4); }
+
+    input[type="color"] { 
+      -webkit-appearance: none; width: 100%; height: 44px; padding: 0; 
+      border: 1px solid var(--glass-border); border-radius: 14px; 
+      cursor: pointer; background: transparent; overflow: hidden; transition: all 0.3s; 
+    }
+    input[type="color"]:hover { transform: scale(1.02); border-color: var(--secondary); box-shadow: 0 0 20px rgba(6, 182, 212, 0.2); }
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    input[type="color"]::-webkit-color-swatch { border: none; border-radius: 12px; }
+
+    .custom-select {
+      width: 100%; padding: 14px 18px; 
+      background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); 
+      border-radius: 14px; color: white; font-family: inherit; font-size: 0.95rem; 
+      outline: none; cursor: pointer; appearance: none; 
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2306b6d4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); 
+      background-repeat: no-repeat; background-position: left 16px center; background-size: 16px; 
+      transition: 0.3s; font-weight: 600;
+    }
+    .custom-select:hover { border-color: rgba(255,255,255,0.3); background-color: rgba(255,255,255,0.08); box-shadow: 0 0 15px rgba(6, 182, 212, 0.1); }
+    .custom-select option { background: #1a1a2e; color: white; padding: 12px; }
+
+    .switch-container { 
+      display: flex; justify-content: space-between; align-items: center; 
+      background: rgba(255,255,255,0.03); padding: 14px 18px; 
+      border-radius: 14px; border: 1px solid var(--glass-border); 
+      transition: 0.3s;
+    }
+    .switch-container:hover { border-color: rgba(6, 182, 212, 0.3); background: rgba(6, 182, 212, 0.04); }
+    .switch { position: relative; width: 50px; height: 28px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider-switch { 
+      position: absolute; cursor: pointer; inset: 0; 
+      background: rgba(255,255,255,0.08); transition: .4s; 
+      border-radius: 28px; border: 1px solid var(--glass-border);
+    }
+    .slider-switch:before { 
+      position: absolute; content: ""; height: 20px; width: 20px; 
+      left: 4px; bottom: 3px; background: #fff; transition: .4s; 
+      border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.3); 
+    }
+    input:checked + .slider-switch { 
+      background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.4); 
+      border-color: transparent;
+    }
+    input:checked + .slider-switch:before { transform: translateX(22px); box-shadow: 0 0 15px var(--glow); }
+
+    .btn-apply { 
+      width: 100%; padding: 18px; margin-top: 10px; border: none; border-radius: 16px; 
+      background: linear-gradient(135deg, var(--primary), var(--accent)); 
+      color: #fff; font-weight: 800; font-size: 1rem; cursor: pointer; 
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); 
+      box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4), 0 0 20px rgba(236, 72, 153, 0.2);
+      position: relative; overflow: hidden;
+      letter-spacing: 1px;
+    }
+    .btn-apply::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--secondary), var(--primary));
+      opacity: 0; transition: opacity 0.4s;
+    }
+    .btn-apply:hover { transform: translateY(-4px); box-shadow: 0 20px 50px rgba(139, 92, 246, 0.6), 0 0 40px rgba(236, 72, 153, 0.3); }
+    .btn-apply:hover::before { opacity: 1; }
+    .btn-apply span { position: relative; z-index: 1; }
+
+    /* ==================== TAB CONTENT ==================== */
+    .tab-content { 
+      position: absolute; inset: 0; 
+      display: none; justify-content: center; align-items: center; 
+      flex-direction: column; z-index: 10;
+    }
+    .tab-content.active { display: flex; animation: tabIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+    @keyframes tabIn {
+      from { opacity: 0; transform: scale(0.96) translateY(20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* ==================== PERSIAN 3D SCENE ==================== */
+    .scene-fa { 
+      perspective: 1200px; width: 100vw; height: 100vh; 
+      display: flex; justify-content: center; align-items: center; 
+      cursor: grab; position: relative;
+    }
+    .scene-fa:active { cursor: grabbing; }
+    .text-fa-container { 
+      position: relative; transform-style: preserve-3d; 
+      width: 600px; height: 240px; 
+      transition: transform 0.1s linear;
+    }
+    .layer-back text { 
+      fill: var(--side-color, #eab308); 
+      stroke: rgba(0,0,0,0.8); stroke-width: 2px; 
+    }
+    .layer-front text { 
+      fill: var(--front-color, #8b5cf6); 
+      stroke: #000; stroke-width: 3px; 
+      filter: drop-shadow(0 0 30px var(--front-color, #8b5cf6)) drop-shadow(0 15px 30px rgba(0,0,0,0.8)); 
+    }
+    .scene-fa svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .scene-fa text { 
+      font-family: var(--font-family); font-weight: 900; font-size: 120px; 
+      text-anchor: middle; dominant-baseline: middle; 
+      paint-order: stroke fill;
+    }
+
+    /* ==================== THREEJS CANVAS ==================== */
+    #canvas-container { position: absolute; inset: 0; cursor: grab; z-index: 10; }
+    #canvas-container:active { cursor: grabbing; }
+    #canvas-container canvas { display: block; }
+
+    /* ==================== NASTALIQ TAB ==================== */
+    .nastaliq-wrapper { 
+      width: 100%; max-width: 900px; padding: 30px; 
+      display: flex; flex-direction: column; gap: 24px; z-index: 10; 
+      animation: tabIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .nastaliq-wrapper textarea {
+      width: 100%; min-height: 130px; padding: 20px 24px; 
+      font-family: Tahoma, sans-serif; font-size: 1.15rem; line-height: 1.9;
+      border: 1px solid var(--glass-border); border-radius: 20px; 
+      background: rgba(255,255,255,0.04); color: white;
+      resize: vertical; outline: none; transition: 0.4s; 
+      backdrop-filter: blur(20px);
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.3);
+    }
+    .nastaliq-wrapper textarea:focus { 
+      border-color: var(--secondary); 
+      background: rgba(255,255,255,0.08); 
+      box-shadow: 0 0 30px rgba(6, 182, 212, 0.2), inset 0 0 30px rgba(0,0,0,0.3); 
+    }
+    .nastaliq-wrapper textarea::placeholder { color: var(--text-muted); opacity: 0.6; }
+    
+    .nastaliq-output {
+      width: 100%; min-height: 240px; padding: 50px 40px; box-sizing: border-box;
+      font-family: 'WebNastaliq', Tahoma; font-size: 56px; line-height: 1.7; 
+      color: #fff; text-align: center;
+      background: linear-gradient(135deg, rgba(12, 12, 24, 0.8), rgba(20, 20, 40, 0.6));
+      border-radius: 28px; border: 1px solid var(--glass-border);
+      box-shadow: inset 0 0 60px rgba(0,0,0,0.6), 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(6, 182, 212, 0.06);
+      white-space: pre-wrap; word-wrap: break-word; 
+      backdrop-filter: blur(30px); transition: 0.4s;
+      position: relative;
+      overflow: hidden;
+    }
+    .nastaliq-output::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(6, 182, 212, 0.05), transparent 70%);
+      pointer-events: none;
+    }
+    .nastaliq-output:empty::before { 
+      content: "متن نستعلیق اینجا نمایش داده می‌شود..."; 
+      color: var(--text-muted); font-family: Tahoma, sans-serif; 
+      font-size: 1rem; display: block; opacity: 0.5;
+      position: relative; z-index: 1;
+    }
+
+    /* ==================== INPUT PANEL ==================== */
+    .input-panel { 
+      position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); 
+      display: flex; gap: 12px; 
+      background: var(--panel-bg); backdrop-filter: blur(40px); 
+      padding: 12px; border-radius: 60px; 
+      border: 1px solid var(--glass-border); z-index: 1000; 
+      box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 40px rgba(139, 92, 246, 0.1);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .input-panel.hidden { display: none; }
+    .input-panel:hover { box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 60px rgba(6, 182, 212, 0.15); }
+
+    input[type="text"] { 
+      padding: 16px 30px; border-radius: 50px; 
+      border: 1px solid transparent; background: rgba(255,255,255,0.05); 
+      color: white; text-align: center; font-family: inherit; 
+      font-size: 1.05rem; font-weight: 700; outline: none; 
+      width: 240px; transition: all 0.4s; 
+    }
+    input[type="text"]:focus { 
+      border-color: var(--secondary); 
+      background: rgba(255,255,255,0.08); 
+      box-shadow: 0 0 25px rgba(6, 182, 212, 0.25); 
+    }
+    
+    .btn-build { 
+      padding: 16px 36px; border-radius: 50px; border: none; 
+      background: linear-gradient(135deg, var(--primary), var(--accent)); 
+      color: white; font-weight: 800; font-size: 1rem; cursor: pointer; 
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); 
+      box-shadow: 0 8px 25px rgba(236, 72, 153, 0.35);
+      position: relative; overflow: hidden;
+      letter-spacing: 0.5px;
+    }
+    .btn-build::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--secondary), var(--primary));
+      opacity: 0; transition: opacity 0.4s;
+    }
+    .btn-build:hover { transform: scale(1.06); box-shadow: 0 12px 35px rgba(236, 72, 153, 0.5), 0 0 30px rgba(6, 182, 212, 0.3); }
+    .btn-build:hover::before { opacity: 1; }
+    .btn-build span { position: relative; z-index: 1; }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 768px) {
+      .settings-panel { width: calc(100% - 40px); left: 20px; top: 85px; max-height: 70vh; }
+      .text-fa-container { width: 320px; height: 140px; }
+      .scene-fa text { font-size: 70px; }
+      .nastaliq-wrapper { padding: 15px; }
+      .nastaliq-output { font-size: 32px !important; padding: 30px 20px; min-height: 180px; }
+      .input-panel { padding: 8px; gap: 8px; bottom: 25px; }
+      input[type="text"] { width: 150px; padding: 12px 18px; font-size: 0.9rem; }
+      .btn-build { padding: 12px 22px; font-size: 0.9rem; }
+      .menu-items { min-width: 160px; }
+    }
+  </style>
+
+  <script src="./libs/three.min.js"></script>
+  <script src="./libs/FontLoader.js"></script>
+  <script src="./libs/OrbitControls.js"></script>
+</head>
+<body>
+
+  <!-- BACKGROUND FX -->
+  <div id="bg-grid"></div>
+  <div id="bg-glow"></div>
+  <div id="particles"></div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <button class="menu-toggle" onclick="toggleMenu()" aria-label="منو">
+      <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+    </button>
+    <div class="menu-items" id="menuItems">
+      <button class="menu-item active" id="menu-fa" onclick="switchTab('fa')">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+        فارسی
+      </button>
+      <button class="menu-item" id="menu-en" onclick="switchTab('en')">
+        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2 0-.68.07-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></svg>
+        English
+      </button>
+      <button class="menu-item" id="menu-na" onclick="switchTab('na')">
+        <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+        نستعلیق
+      </button>
+    </div>
+  </div>
+
+  <!-- SETTINGS TOGGLE -->
+  <button class="settings-toggle" id="settingsToggleBtn" onclick="toggleSettings()" aria-label="تنظیمات">
+    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+  </button>
+
+  <!-- 3D SETTINGS PANEL -->
+  <div class="settings-panel hidden" id="settingsPanel3D">
+    <div class="panel-header">
+      <h3>تنظیمات سه بعدی</h3>
+      <button class="close-btn" onclick="toggleSettings()">✕</button>
+    </div>
+    <div class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg> رنگ‌بندی</div>
+    <div class="control-group"><div class="control-header">رنگ رویی</div><input type="color" id="in-front-color" value="#8b5cf6"></div>
+    <div class="control-group"><div class="control-header">رنگ ضخامت</div><input type="color" id="in-side-color" value="#eab308"></div>
+    <div class="control-group"><div class="control-header">پس‌زمینه</div><input type="color" id="in-bg-color" value="#05050a"></div>
+    <div class="section-title" style="margin-top:25px;"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg> ابعاد</div>
+    <div class="control-group"><div class="control-header">ضخامت <span class="value" id="val-depth">40</span></div><input type="range" id="in-depth" min="10" max="80" value="40"></div>
+    <div class="control-group"><div class="control-header">سایز <span class="value" id="val-size">100</span></div><input type="range" id="in-size" min="50" max="150" value="100"></div>
+    <div class="section-title" style="margin-top:25px;"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg> چرخش</div>
+    <div class="switch-container"><span style="font-weight:600;">فعال</span><label class="switch"><input type="checkbox" id="in-auto-rotate" checked><span class="slider-switch"></span></label></div>
+    <div class="control-group" style="margin-top:15px;"><div class="control-header">سرعت <span class="value" id="val-speed">5</span></div><input type="range" id="in-rotate-speed" min="1" max="20" value="5"></div>
+    <div class="control-group"><div class="control-header">جهت</div><select id="in-rotate-dir" class="custom-select"><option value="1">چپ به راست</option><option value="-1">راست به چپ</option></select></div>
+    <button class="btn-apply" onclick="applySettings3D()"><span>اعمال تغییرات</span></button>
+  </div>
+
+  <!-- NASTALIQ SETTINGS PANEL -->
+  <div class="settings-panel hidden" id="settingsPanelNa">
+    <div class="panel-header">
+      <h3>تنظیمات نستعلیق</h3>
+      <button class="close-btn" onclick="toggleSettings()">✕</button>
+    </div>
+    <div class="section-title">ظاهر متن</div>
+    <div class="control-group">
+      <div class="control-header">سایز فونت <span class="value" id="val-na-size">48</span></div>
+      <input type="range" id="na-size" min="20" max="100" value="48">
+    </div>
+    <div class="control-group">
+      <div class="control-header">رنگ متن</div>
+      <input type="color" id="na-color" value="#ffffff">
+    </div>
+    <div class="control-group">
+      <div class="control-header">رنگ پس‌زمینه کادر</div>
+      <input type="color" id="na-bg" value="#1a1a2e">
+    </div>
+    <div class="control-group">
+      <div class="control-header">چینش متن</div>
+      <select id="na-align" class="custom-select">
+        <option value="center">وسط</option>
+        <option value="right">راست</option>
+        <option value="left">چپ</option>
+      </select>
+    </div>
+    <button class="btn-apply" onclick="applySettingsNa()"><span>اعمال تغییرات</span></button>
+  </div>
+
+  <!-- TAB CONTENT -->
+  <div class="tab-content active" id="tab-fa">
+    <div class="scene-fa" id="scene-fa"><div class="text-fa-container" id="fa-container"></div></div>
+  </div>
+  <div class="tab-content" id="tab-en"><div id="canvas-container"></div></div>
+  <div class="tab-content" id="tab-na">
+    <div class="nastaliq-wrapper">
+      <textarea id="nastaliqInput" placeholder="اینجا تایپ کنید..."></textarea>
+      <div id="nastaliqOutput" class="nastaliq-output"></div>
+    </div>
+  </div>
+
+  <!-- INPUT PANEL -->
+  <div class="input-panel" id="inputPanel">
+    <input type="text" id="text-input" value="پارسا" maxlength="12" placeholder="متن...">
+    <button class="btn-build" onclick="buildCurrent()"><span>بساز</span></button>
+  </div>
+
+<script>
+  // ==================== PARTICLES ====================
+  (function createParticles() {
+    const container = document.getElementById('particles');
+    const count = 30;
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.animationDuration = (8 + Math.random() * 12) + 's';
+      p.style.animationDelay = (Math.random() * 10) + 's';
+      p.style.width = p.style.height = (1 + Math.random() * 3) + 'px';
+      p.style.opacity = 0.3 + Math.random() * 0.5;
+      container.appendChild(p);
+    }
+  })();
+
+  // ==================== GLOBAL STATE ====================
+  let currentLang = 'fa';
+  let settings3D = { 
+    frontColor: '#8b5cf6', sideColor: '#eab308', bgColor: '#05050a', 
+    depth: 40, size: 100, autoRotate: true, rotateSpeed: 5, rotateDir: 1 
+  };
+
+  // ==================== MENU ====================
+  function toggleMenu() {
+    document.getElementById('menuItems').classList.toggle('open');
+  }
+  window.addEventListener('click', (e) => {
+    const sidebar = document.querySelector('.sidebar');
+    if (!sidebar.contains(e.target)) {
+      document.getElementById('menuItems').classList.remove('open');
+    }
+  });
+
+  // ==================== SETTINGS ====================
+  function toggleSettings() {
+    const panel3D = document.getElementById('settingsPanel3D');
+    const panelNa = document.getElementById('settingsPanelNa');
+    
+    if (currentLang === 'na') {
+      panelNa.classList.toggle('hidden');
+      panelNa.classList.toggle('active');
+    } else {
+      panel3D.classList.toggle('hidden');
+      panel3D.classList.toggle('active');
+    }
+  }
+
+  // Slider value updates
+  document.getElementById('in-depth').addEventListener('input', e => document.getElementById('val-depth').textContent = e.target.value);
+  document.getElementById('in-size').addEventListener('input', e => document.getElementById('val-size').textContent = e.target.value);
+  document.getElementById('in-rotate-speed').addEventListener('input', e => document.getElementById('val-speed').textContent = e.target.value);
+  document.getElementById('na-size').addEventListener('input', e => document.getElementById('val-na-size').textContent = e.target.value);
+
+  // ==================== TAB SWITCH ====================
+  function switchTab(lang) {
+    currentLang = lang;
+    
+    document.getElementById('menu-fa').classList.toggle('active', lang === 'fa');
+    document.getElementById('menu-en').classList.toggle('active', lang === 'en');
+    document.getElementById('menu-na').classList.toggle('active', lang === 'na');
+    document.getElementById('menuItems').classList.remove('open');
+
+    document.getElementById('tab-fa').classList.toggle('active', lang === 'fa');
+    document.getElementById('tab-en').classList.toggle('active', lang === 'en');
+    document.getElementById('tab-na').classList.toggle('active', lang === 'na');
+    
+    const inputPanel = document.getElementById('inputPanel');
+    const panel3D = document.getElementById('settingsPanel3D');
+    const panelNa = document.getElementById('settingsPanelNa');
+
+    if (lang === 'na') {
+      inputPanel.classList.add('hidden');
+      panel3D.classList.remove('active'); panel3D.classList.add('hidden');
+    } else {
+      inputPanel.classList.remove('hidden');
+      panelNa.classList.remove('active'); panelNa.classList.add('hidden');
+      
+      const input = document.getElementById('text-input');
+      input.value = lang === 'fa' ? 'پارسا' : 'PARSA';
+      input.dir = lang === 'fa' ? 'rtl' : 'ltr';
+
+      if (lang === 'en') initThreeJS();
+      else buildPersian();
+    }
+  }
+
+  function applySettings3D() {
+    settings3D.frontColor = document.getElementById('in-front-color').value;
+    settings3D.sideColor = document.getElementById('in-side-color').value;
+    settings3D.bgColor = document.getElementById('in-bg-color').value;
+    settings3D.depth = parseInt(document.getElementById('in-depth').value);
+    settings3D.size = parseInt(document.getElementById('in-size').value);
+    settings3D.autoRotate = document.getElementById('in-auto-rotate').checked;
+    settings3D.rotateSpeed = parseInt(document.getElementById('in-rotate-speed').value);
+    settings3D.rotateDir = parseInt(document.getElementById('in-rotate-dir').value);
+
+    document.body.style.background = settings3D.bgColor;
+    document.documentElement.style.setProperty('--front-color', settings3D.frontColor);
+    document.documentElement.style.setProperty('--side-color', settings3D.sideColor);
+    
+    if (scene) scene.background = new THREE.Color(settings3D.bgColor);
+
+    if (currentLang === 'fa') buildPersian();
+    else if (currentLang === 'en' && threeInitialized) createThreeText();
+  }
+
+  function applySettingsNa() {
+    const size = document.getElementById('na-size').value;
+    const color = document.getElementById('na-color').value;
+    const bg = document.getElementById('na-bg').value;
+    const align = document.getElementById('na-align').value;
+    
+    const output = document.getElementById('nastaliqOutput');
+    output.style.fontSize = size + 'px';
+    output.style.color = color;
+    output.style.background = bg;
+    output.style.textAlign = align;
+  }
+
+  // ==================== PERSIAN 3D ====================
+  let faRot = { x: 15, y: 0 };
+  let isDragging = false;
+  let lastMouse = { x: 0, y: 0 };
+  let lastTime = performance.now();
+
+  function buildPersian() {
+    const text = document.getElementById('text-input').value.trim() || 'اسم';
+    const container = document.getElementById('fa-container');
+    container.innerHTML = '';
+    container.style.fontSize = settings3D.size + 'px';
+
+    const layers = 18;
+    const depth = settings3D.depth;
+
+    for (let i = layers; i >= 1; i--) {
+      const z = -depth + (i * (depth / layers));
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("viewBox", "0 0 600 240");
+      svg.classList.add('layer-back');
+      svg.style.transform = `translateZ(${z}px)`;
+
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute('x', '50%'); t.setAttribute('y', '50%');
+      t.textContent = text;
+      t.style.fontSize = 'inherit';
+      svg.appendChild(t);
+      container.appendChild(svg);
+    }
+
+    const svgFront = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svgFront.setAttribute("viewBox", "0 0 600 240");
+    svgFront.classList.add('layer-front');
+    svgFront.style.transform = `translateZ(2px)`;
+    const tFront = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    tFront.setAttribute('x', '50%'); tFront.setAttribute('y', '50%');
+    tFront.textContent = text;
+    tFront.style.fontSize = 'inherit';
+    svgFront.appendChild(tFront);
+    container.appendChild(svgFront);
+
+    updateFaTransform();
+  }
+
+  function updateFaTransform() {
+    const c = document.getElementById('fa-container');
+    if (c) c.style.transform = `rotateX(${faRot.x}deg) rotateY(${faRot.y}deg)`;
+  }
+
+  function loopFa(time) {
+    const deltaTime = (time - lastTime) / 1000;
+    lastTime = time;
+
+    if (!isDragging && settings3D.autoRotate && currentLang === 'fa') {
+      faRot.y += (settings3D.rotateSpeed * 10) * deltaTime * settings3D.rotateDir;
+      updateFaTransform();
+    }
+    requestAnimationFrame(loopFa);
+  }
+
+  document.getElementById('scene-fa').addEventListener('mousedown', e => {
+    isDragging = true;
+    lastMouse = { x: e.clientX, y: e.clientY };
+  });
+  window.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    const dx = e.clientX - lastMouse.x;
+    const dy = e.clientY - lastMouse.y;
+    faRot.y += dx * 0.4;
+    faRot.x -= dy * 0.4;
+    faRot.x = Math.max(-80, Math.min(80, faRot.x));
+    updateFaTransform();
+    lastMouse = { x: e.clientX, y: e.clientY };
+  });
+  window.addEventListener('mouseup', () => isDragging = false);
+
+  document.getElementById('scene-fa').addEventListener('touchstart', e => {
+    isDragging = true;
+    lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }, {passive:true});
+  window.addEventListener('touchmove', e => {
+    if (!isDragging) return;
+    const dx = e.touches[0].clientX - lastMouse.x;
+    const dy = e.touches[0].clientY - lastMouse.y;
+    faRot.y += dx * 0.4;
+    faRot.x -= dy * 0.4;
+    faRot.x = Math.max(-80, Math.min(80, faRot.x));
+    updateFaTransform();
+    lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }, {passive:true});
+  window.addEventListener('touchend', () => isDragging = false);
+
+  // ==================== NASTALIQ ====================
+  const nastaliqInput = document.getElementById('nastaliqInput');
+  const nastaliqOutput = document.getElementById('nastaliqOutput');
+
+  nastaliqInput.addEventListener('input', () => {
+    nastaliqOutput.textContent = nastaliqInput.value;
+  });
+
+  // ==================== THREEJS ====================
+  let scene, camera, renderer, controls, textGroup, font;
+  let threeInitialized = false;
+  let animationFrameId;
+
+  function initThreeJS() {
+    if (threeInitialized) return;
+
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(settings3D.bgColor);
+    scene.fog = new THREE.FogExp2(settings3D.bgColor, 0.0015);
+
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 2000);
+    camera.position.z = 700;
+
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.enableZoom = true;
+    controls.autoRotate = false;
+
+    // Lighting
+    scene.add(new THREE.AmbientLight(0x404060, 0.8));
+    
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    keyLight.position.set(200, 300, 400);
+    keyLight.castShadow = true;
+    scene.add(keyLight);
+    
+    const fillLight = new THREE.DirectionalLight(0x8b5cf6, 0.6);
+    fillLight.position.set(-300, 100, 300);
+    scene.add(fillLight);
+    
+    const rimLight = new THREE.DirectionalLight(0x06b6d4, 0.8);
+    rimLight.position.set(0, -200, -300);
+    scene.add(rimLight);
+
+    const pointLight1 = new THREE.PointLight(0xec4899, 0.5, 1000);
+    pointLight1.position.set(300, 0, 300);
+    scene.add(pointLight1);
+
+    const pointLight2 = new THREE.PointLight(0x06b6d4, 0.5, 1000);
+    pointLight2.position.set(-300, 0, -300);
+    scene.add(pointLight2);
+
+    textGroup = new THREE.Group();
+    scene.add(textGroup);
+
+    const loader = new THREE.FontLoader();
+    loader.load('./font/helvetiker_bold.typeface.json', f => {
+      font = f;
+      threeInitialized = true;
+      createThreeText();
+    });
+
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    animateThree();
+    
+    window.addEventListener('resize', () => {
+      if (!camera || !renderer) return;
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  }
+
+  function createThreeText() {
+    if (!font || !textGroup) return;
+    while (textGroup.children.length) textGroup.remove(textGroup.children[0]);
+
+    const geo = new THREE.TextGeometry(document.getElementById('text-input').value.trim() || 'NAME', {
+      font: font, 
+      size: settings3D.size * 0.6, 
+      height: settings3D.depth * 0.8,
+      bevelEnabled: true, 
+      bevelThickness: 4, 
+      bevelSize: 3, 
+      bevelSegments: 8,
+      curveSegments: 12
+    });
+
+    const matFront = new THREE.MeshStandardMaterial({ 
+      color: new THREE.Color(settings3D.frontColor), 
+      metalness: 0.7, 
+      roughness: 0.15,
+      emissive: new THREE.Color(settings3D.frontColor),
+      emissiveIntensity: 0.15
+    });
+    const matSide = new THREE.MeshStandardMaterial({ 
+      color: new THREE.Color(settings3D.sideColor), 
+      metalness: 0.3, 
+      roughness: 0.4,
+      emissive: new THREE.Color(settings3D.sideColor),
+      emissiveIntensity: 0.1
+    });
+
+    const mesh = new THREE.Mesh(geo, [matFront, matSide]);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    
+    geo.computeBoundingBox();
+    const centerX = (geo.boundingBox.max.x - geo.boundingBox.min.x) / 2;
+    const centerY = (geo.boundingBox.max.y - geo.boundingBox.min.y) / 2;
+    const centerZ = (geo.boundingBox.max.z - geo.boundingBox.min.z) / 2;
+    
+    mesh.position.x = -centerX;
+    mesh.position.y = -centerY;
+    mesh.position.z = -centerZ;
+    
+    textGroup.add(mesh);
+  }
+
+  function animateThree() {
+    animationFrameId = requestAnimationFrame(animateThree);
+    
+    if (controls) {
+      controls.autoRotate = settings3D.autoRotate && currentLang === 'en';
+      controls.autoRotateSpeed = settings3D.rotateSpeed * 2 * settings3D.rotateDir;
+      controls.update();
+    }
+    if (renderer && scene && camera) renderer.render(scene, camera);
+  }
+
+  function buildCurrent() {
+    if (currentLang === 'fa') buildPersian();
+    else if (currentLang === 'en' && threeInitialized) createThreeText();
+  }
+
+  document.getElementById('text-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') buildCurrent();
+  });
+
+  // ==================== INIT ====================
+  window.addEventListener('load', () => {
+    document.documentElement.style.setProperty('--front-color', settings3D.frontColor);
+    document.documentElement.style.setProperty('--side-color', settings3D.sideColor);
+    buildPersian();
+    requestAnimationFrame(loopFa);
+  });
+</script>
+</body>
+</html>
